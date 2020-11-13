@@ -1,9 +1,13 @@
 %Set up data and network
 net = resnet50;
-imdsTrain = imageDatastore('./Images/Unprocessed_Sonoma_Cameratrap','IncludeSubfolders',true,'LabelSource','foldernames');
-[imdsTrain, imdsTest] = splitEachLabel(imdsTrain, 0.60);
 inputSize = net.Layers(1).InputSize;
-
+jsonFile = fileread('Images/Bounding_Box_Output/output.json');
+json = jsondecode(jsonFile);
+baseImagePath = 'C:/CS479_Final_Project/Images/Unprocessed_Sonoma_Cameratrap/';
+outputImagePath = 'C:/CS479_Final_Project/Images/Processed_Sonoma_Cameratrap/';
+%image_preprocessing(jsonFile, baseImagePath, outputImagePath); % Only need to run this function once!
+imdsTrain = imageDatastore(outputImagePath,'IncludeSubfolders',true,'LabelSource','foldernames');
+[imdsTrain, imdsTest] = splitEachLabel(imdsTrain, 0.60);
 
 %Find layers to replace
 if isa(net,'SeriesNetwork') 
@@ -36,7 +40,7 @@ layers = lgraph.Layers;
 connections = lgraph.Connections;
 layers(1:43) = freezeWeights(layers(1:43));
 lgraph = createLgraphUsingConnections(layers,connections);
-analyzeNetwork(net)
+%analyzeNetwork(net)
 %Process data fo input into CNN
 pixelRange = [-30 30];
 scaleRange = [0.9 1.1];
@@ -109,4 +113,3 @@ avg_fscore = mean(fscore, 'omitnan')
 %layer = 'fc1000'; 
 layer = 'fc1000_softmax';
 embedFeatures = activations(net,augimdsTrain,layer,'OutputAs','rows');
-
