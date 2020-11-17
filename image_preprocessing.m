@@ -32,6 +32,12 @@ function image_preprocessing(jsonFile, baseImagePath, outputImagePath)
         end
     end
     
+    for i = 1 : numel(Labels) % Check if directories exist
+        if ~exist(append(outputImagePath, string(Labels(i))), 'dir')
+            mkdir(append(outputImagePath, string(Labels(i))));
+        end
+    end
+    
     % formula for cropping:
     % I = current image, might be able to be referenced by
     %                                           jsonFilenames(curImageIdx, :);
