@@ -1,4 +1,4 @@
-function [imdsArray, numClasses] = oversampling_compensation_for_advanced_partitions(imdsArray)
+function [imdsArray, numClasses] = oversampling_compensation_for_advanced_partitions(imdsArray, excludeFlag)
 % This function will support oversampling compensation for a K-Fold
 % partition and for a Leave-One-Camera-Out partition by taking as input an
 % array of imageDatastores and compensating for those based on the average
@@ -19,14 +19,24 @@ function [imdsArray, numClasses] = oversampling_compensation_for_advanced_partit
     numObservations = splitapply(@numel,Labels,G);
     numObservations = sort(numObservations, 'descend');
     desiredNumObservationsPerClass = round(mean(numObservations)) / numel(imdsArray);
+    % desiredNumObservationsPerClass = numObservations(3) / numel(imdsArray);
     
     % Do these steps for each imds in the imdsArray
     for k = 1 : numel(imdsArray)
-        
-        Labels = imdsArray{k,1}.Labels;
+        if(excludeFlag == true)
+            table = countEachLabel(imdsArray{k,1});
+            excludeIdx = table.Count > desiredNumObservationsPerClass;
+            excludeLabels = table.Label(excludeIdx(:),1);
+            SkippedLabels = imdsArray{k,1}.Labels(ismember(imdsArray{k,1}.Labels, excludeLabels, 'rows'));
+            SkippedFiles = imdsArray{k,1}.Files(ismember(imdsArray{k,1}.Labels, excludeLabels, 'rows')); % Skipped Files
+            Labels = imdsArray{k,1}.Labels(~ismember(imdsArray{k,1}.Labels, excludeLabels, 'rows'));
+            files = imdsArray{k,1}.Files(~ismember(imdsArray{k,1}.Labels, excludeLabels, 'rows')); % Used Files
+        else
+            Labels = imdsArray{k,1}.Labels;
+            files = imdsArray{k,1}.Files;
+        end
         [G, classes] = findgroups(Labels);
-        numObservations = splitapply(@numel,Labels,G);
-        files = splitapply(@(x){randReplicateFiles(x, desiredNumObservationsPerClass)}, imdsArray{k,1}.Files, G);
+        files = splitapply(@(x){randReplicateFiles(x, desiredNumObservationsPerClass)}, files, G);
         files = vertcat(files{:});
         Labels=[];
         info=strfind(files,'\');
@@ -38,7 +48,10 @@ function [imdsArray, numClasses] = oversampling_compensation_for_advanced_partit
             targetStr2=cellstr(targetStr);
             Labels=[Labels;categorical(targetStr2)];
         end
-        
+        if(excludeFlag == true)
+            Labels = vertcat(Labels, SkippedLabels);
+            files = vertcat(files, SkippedFiles);
+        end
         imdsArray{k,1}.Files = files;
         imdsArray{k,1}.Labels = Labels;
     end
