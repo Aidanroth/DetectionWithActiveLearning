@@ -1,4 +1,4 @@
-function [imdsArray, groupSizes, camera, numClasses] = createLOCOGroupings(filePath, excludeList, camera)
+function [imdsArray, valArray, groupSizes, camera, numClasses] = createLOCOGroupings(filePath, excludeList, camera)
     if empty(camera)
         % Search for cameras
         camera = {};
@@ -16,5 +16,6 @@ function [imdsArray, groupSizes, camera, numClasses] = createLOCOGroupings(fileP
         groupSizes(i) = sum(grouping(:,i));
         fileNames = imds.Files(grouping(:,i),1);
         imdsArray{i,1} = imageDatastore(fileNames,'LabelSource','foldernames');
+        valArrayPi,1} = imageDatastore(fileNames,'LabelSource','foldernames');
     end
 end

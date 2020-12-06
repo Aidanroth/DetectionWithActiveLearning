@@ -18,7 +18,7 @@ function [imdsArray, numClasses] = oversampling_compensation_for_advanced_partit
     [G, classes] = findgroups(Labels);
     numObservations = splitapply(@numel,Labels,G);
     numObservations = sort(numObservations, 'descend');
-    desiredNumObservationsPerClass = round(mean(numObservations)) / numel(imdsArray);
+    desiredNumObservationsPerClass = round(mean(numObservations) / numel(imdsArray));
     % desiredNumObservationsPerClass = numObservations(3) / numel(imdsArray);
     
     % Do these steps for each imds in the imdsArray

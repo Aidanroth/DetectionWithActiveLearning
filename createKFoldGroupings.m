@@ -1,4 +1,4 @@
-function [imdsArray, groupSizes] = createKFoldGroupings(tableFile, filePath, excludeList, n)
+function [imdsArray, valArray, groupSizes] = createKFoldGroupings(tableFile, filePath, excludeList, n)
     A = readtable(tableFile);
     for i = 1 : n
         grouping(:,i) = (rem(A.Var2, n) == i - 1) & (~contains(A.Var1, excludeList)); % Grouping based on table
@@ -14,6 +14,7 @@ function [imdsArray, groupSizes] = createKFoldGroupings(tableFile, filePath, exc
     end
     for i = 1 : n
         imdsArray{i,1} = imageDatastore(groupingFiles(1:groupSizes(i),i),'LabelSource','foldernames'); % Create datastores based on groups generated above
+        valArray{i,1} = imageDatastore(groupingFiles(1:groupSizes(i),i),'LabelSource','foldernames');
         groupSizes(i) = numel(imdsArray{i,1}.Files); % update size of group based on new datastore
     end
 end

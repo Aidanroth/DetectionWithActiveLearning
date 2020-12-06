@@ -1,4 +1,4 @@
-function [net, augimdsTrain, augimdsValidation, imdsTest, imdsTrain] = training_script(net, imdsArray, numClasses, inputSize)
+function [net, avg_fscore, avg_precision, avg_recall, avg_accuracy] = training_script(net, imdsArray, valArray, numClasses, inputSize, numfolds, outputName)
 
     %Find layers to replace
     if isa(net,'SeriesNetwork') 
@@ -40,39 +40,51 @@ function [net, augimdsTrain, augimdsValidation, imdsTest, imdsTrain] = training_
         'RandYTranslation',pixelRange, ...
         'RandXScale',scaleRange, ...
         'RandYScale',scaleRange);
-
-    filesTrain = cell(1);
-    if numel(imdsArray) > 2
-        for k = 1 : numel(imdsArray)-1
-            filesTrain = vertcat(filesTrain, imdsArray{k,1}.Files);
-        end
-    else
-        filesTrain = imdsArray{1,1}.Files;
-    end
-    filesTrain(1) = [];
-    imdsTrain = imageDatastore(filesTrain, 'LabelSource','foldernames');
-    imdsTest = imdsArray{end,1};
-    augimdsTrain = augmentedImageDatastore(inputSize(1:2),imdsTrain, 'DataAugmentation',imageAugmenter,"ColorPreprocessing","gray2rgb");
-    augimdsValidation = augmentedImageDatastore(inputSize(1:2),imdsTest, "ColorPreprocessing","gray2rgb");
-    miniBatchSize = 128; % Make this much smaller if you do not have a CUDA deivce
-    valFrequency = floor(numel(augimdsTrain.Files)/miniBatchSize);
-    %delete(gcp('nocreate')); % CUDA Setting
-    %parpool('local', 2); % CUDA Setting
-    options = trainingOptions('sgdm', ...
-        'ExecutionEnvironment', 'gpu', ... % CUDA Setting
-        'MiniBatchSize',miniBatchSize, ...
-        'MaxEpochs',30, ...
-        'InitialLearnRate',3e-2, ...
-        'Shuffle','every-epoch', ...
-        'ValidationData',augimdsValidation, ...
-        'ValidationFrequency',valFrequency, ...
-        'Verbose',false, ...
-        'LearnRateSchedule','piecewise', ...
-        'LearnRateDropPeriod', 5, ...
-        'LearnRateDropFactor', 0.1, ...
-        'Momentum', .92, ....
-        'Plots','training-progress');
     
-    net = trainNetwork(augimdsTrain,lgraph,options);
+    for i = 1 : numfolds
+
+        filesTrain = cell(1);
+        if numel(imdsArray) > 2
+            for k = 1 : numel(imdsArray)
+                if k ~= i
+                    filesTrain = vertcat(filesTrain, imdsArray{k,1}.Files);
+                end
+            end
+        else
+            filesTrain = imdsArray{1,1}.Files;
+        end
+        filesTrain(1) = [];
+        imdsTrain = imageDatastore(filesTrain, 'LabelSource','foldernames');
+        imdsTest = valArray{i,1};
+        augimdsTrain = augmentedImageDatastore(inputSize(1:2),imdsTrain, 'DataAugmentation',imageAugmenter,"ColorPreprocessing","gray2rgb");
+        augimdsValidation = augmentedImageDatastore(inputSize(1:2),imdsTest, "ColorPreprocessing","gray2rgb");
+        miniBatchSize = 192; % Make this much smaller if you do not have a CUDA deivce
+        valFrequency = floor(numel(augimdsTrain.Files)/miniBatchSize);
+        %delete(gcp('nocreate')); % CUDA Setting
+        %parpool('local', 2); % CUDA Setting
+        options = trainingOptions('sgdm', ...
+            'ExecutionEnvironment', 'gpu', ... % CUDA Setting
+            'MiniBatchSize',miniBatchSize, ...
+            'MaxEpochs', 20, ...
+            'InitialLearnRate',1e-3, ...
+            'Shuffle','every-epoch', ...
+            'ValidationData',augimdsValidation, ...
+            'ValidationFrequency',valFrequency, ...
+            'Verbose',false, ...
+            'LearnRateSchedule','piecewise', ...
+            'LearnRateDropPeriod', 2, ...
+            'LearnRateDropFactor', 0.55, ...
+            'Momentum', .92, ....
+            'Plots','training-progress');
+    
+        net = trainNetwork(augimdsTrain,lgraph,options);
+        [avg_fscore(i), avg_precision(i), avg_recall(i), avg_accuracy(i)] = calc_results(net, imdsTrain, imdsTest, augimdsValidation, i, outputName);
+    
+    
+    end
+    avg_fscore = mean(avg_fscore);
+    avg_precision = mean(avg_precision);
+    avg_recall = mean(avg_recall);
+    avg_accuracy = mean(avg_accuracy);
 
 end
