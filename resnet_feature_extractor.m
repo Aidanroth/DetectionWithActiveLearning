@@ -6,7 +6,7 @@ jsonFile = fileread('C:\CS479_Final_Project\Images\Bounding_Box_Output\Bounding_
 json = jsondecode(jsonFile);
 unprocessedImagePath = 'C:\CS479_Final_Project\Images\Unprocessed_Sonoma_Cameratrap\';
 processedImagePath = 'C:\CS479_Final_Project\Images\Processed_Sonoma_Cameratrap\';
-outputName = "Cropped_Compensated_Normalized_5FoldPartition";
+outputName = "Cropped_Compensated_Normalized_5FoldPartition_Test2";
 excludeList = {'crow'; 'hawk'; 'owl'; 'stellar_s jay'; 'unknown';};
 camera = {'UpperROWWoodChipFieldCamera'; 'LowerTrailCamera'; 'NorthernTowerMeadowCamera'; 'SODPlotCamera'; 'UpperTrailCamera'; 'UpperMostROWCamera'};
 
@@ -16,19 +16,13 @@ camera = {'UpperROWWoodChipFieldCamera'; 'LowerTrailCamera'; 'NorthernTowerMeado
 
 % Leave-One-Camera-Out Partition Code
 % [imdsArray, valArray, groupSizes, cameraNames, numClasses] = createLOCOGroupings(processedImagePath, excludeList, camera);
-% imdsHoldover = imdsArray{end,1};
-% imdsArray(end) = [];
 % [imdsArray, numClasses] = oversampling_compensation_for_advanced_partitions(imdsArray, false);
-% imdsArray{end+1} = imdsHoldover;
 % numfolds = numel(imdsArray);
 
 % KFold Partition Code
 numfolds = 5;
 [imdsArray, valArray, groupSizes] = createKFoldGroupings(xlsxFile, processedImagePath, excludeList, numfolds);
-%imdsHoldover = imdsArray{end,1};
-%imdsArray(end) = [];
 [imdsArray, numClasses] = oversampling_compensation_for_advanced_partitions(imdsArray, false);
-%imdsArray{end+1} = imdsHoldover;
 
 % Naive Partition Code
 % imdsTrain = imageDatastore(processedImagePath,'IncludeSubfolders',true,'LabelSource','foldernames');
@@ -39,10 +33,32 @@ numfolds = 5;
 % numClasses = numel(categories(imdsArray{1,1}.Labels));
 % numfolds = 1;
 
-[net, avg_fscore, avg_precision, avg_recall, avg_accuracy] = training_script(net, imdsArray, valArray, numClasses, inputSize, numfolds, outputName);
+[net, avg_fscore, avg_precision, avg_recall, avg_accuracy, embedFeatures] = training_script(net, imdsArray, valArray, numClasses, inputSize, numfolds, outputName);
 
+
+% net = load('C:\CS479_Final_Project\Output\Finished_Networks\Cropped_Compensated_Normalized_5FoldPartition_F5.MAT');
+% filesTrain = cell(1);
+% for k = 1 : numel(imdsArray)
+%     if k ~= 5
+%         filesTrain = vertcat(filesTrain, imdsArray{k,1}.Files);
+%     end
+% end
+% filesTrain(1) = [];
+% imdsTrain = imageDatastore(filesTrain, 'LabelSource','foldernames');
+% imdsTest = valArray{5,1};
+% augimdsValidation = augmentedImageDatastore(inputSize(1:2),imdsTest, "ColorPreprocessing","gray2rgb");
+% YTest = imdsTest.Labels;
+% YTrain = imdsTrain.Labels;
+% [YPred, probs] = classify(net.net,augimdsValidation);
+% accuracy = mean(YPred == YTest);
+% 
+% idx = randperm(numel(imdsTest.Files),16);
+% figure
+% for i = 1:16
+%     subplot(4,4,i)
+%     I = readimage(imdsTest,idx(i));
+%     imshow(I)
+%     label = YPred(idx(i));
+%     title(string(label) + ", " + num2str(100*max(probs(idx(i),:)),3) + "%");
+% end
 % net = active_learner();
-
-%Grab embedding from penultimate layer
-layer = 'fc1000_softmax';
-embedFeatures = activations(net,augimdsTrain,layer,'OutputAs','rows');

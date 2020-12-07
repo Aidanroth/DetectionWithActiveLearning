@@ -1,4 +1,4 @@
-function [avg_fscore, avg_precision, avg_recall, avg_accuracy] = calc_results(net, imdsTrain, imdsTest, augimdsValidation, i, outputName)
+function [avg_fscore, avg_precision, avg_recall, avg_accuracy, embedFeatures] = calc_results(net, imdsTrain, imdsTest, augimdsValidation, i, outputName)
     %Test network on testing set of images
     YTest = imdsTest.Labels;
     YTrain = imdsTrain.Labels;
@@ -36,6 +36,9 @@ function [avg_fscore, avg_precision, avg_recall, avg_accuracy] = calc_results(ne
     % Save network for later use
 
     save(fullfile('C:\CS479_Final_Project\Output\Finished_Networks', append(outputName, '_F', int2str(i), '.network')), 'net');
-    saveas(fig, fullfile('C:\CS479_Final_Project\Output\Output_Charts', outputName), 'png');
+    saveas(fig, fullfile('C:\CS479_Final_Project\Output\Output_Charts', append(outputName, '_F', int2srt(i))), 'png');
+    
+    layer = 'fc1000_softmax';
+    embedFeatures = activations(net,augimdsTrain,layer,'OutputAs','rows');
     
 end
