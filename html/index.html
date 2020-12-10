@@ -136,7 +136,7 @@ table td img {
 <body>
 <div id="header" >
 <div id="headersub">
-<h1>The Active Learners&nbsp;&nbsp; <span style="color: #DE3737">(names of team members)</span></h1>
+<h1>The Active Learners&nbsp;&nbsp; <span style="color: #DE3737">(Jason Hubbs, Cole Nicholson-Rubidoux, Christopher Roseberry, Aidan Roth)</span></h1>
 </div>
 </div>
 <div class="container">
@@ -144,22 +144,24 @@ table td img {
 <h2>CS 479 : Animal Detection with Active Learning</h2>
 
 <div style="float: right; padding: 20px">
-<img src="placeholder.jpg" />
-<p style="font-size: 14px">Example of a right floating element.</p>
+<img src="mult_image_detections.jpg" />
+<p style="font-size: 14px">Detection of a deer and a turkey.</p>
 </div>
 
-<p> 	Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+<p> 	The focus of our project was animal detection for the purpose of tracking biodiversity via images captured by camera traps in a nature reserve. Our dataset comes from the Fairfield Osbourne Preserve here in Sonoma County, California and consists of roughtly 25,000 labeled images of the wildlife that lives there. The core problem we were trying to solve was the efficiency of animal labeling in machine learning. Manually labeling images is extremely slow and takes away from the limited resources that ecologist have. While standard machine learning methods have greatly improved this process, they require a large pre-existing training set that must be well labeled. To combat this limitation and further improve machine learning in image labeling, we implemented the Active Learning algorithm which behaves in the following way:</p>
 
 <ol>
-<li>list element 1.</li>
-<li>list element 2.</li>
-<li>etc.</li>
+<li>Provide initial machine learning model.</li>
+<li>Partition new data into sections.</li>
+<li>Iteratively query user/model for labels  on  each data partition (depending on query strategy).</li>
+<li>Train model on labeled data.</li>
+<li>Evaluate results.</li>
 </ol>
 
-<p> 	Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+<p> 	Implementing this algorithm provided us with mixed results. Our Active Learning network peaked around 76% and f_scores remained low. However, this was in part due to the quality of our dataset. The number of images for each animal varied greatly, with the number of images containing no animals being more than twice the size of the next largest category, deer. There were also numerous mislabeled images, which mistrained the classifier and made analyzing results more difficult. </p>
 
 <div style="clear:both">
-<h3>Example heading</h3>
+<h3>Approach and Algorithm</h3>
 
 <p> 	Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
 
