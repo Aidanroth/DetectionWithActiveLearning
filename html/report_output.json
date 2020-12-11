@@ -1,0 +1,59 @@
+{
+ "images": [
+  {
+   "file": "C:\\Users\\aidan\\Documents\\AnimalDetectionImages\\report_img\\mult_image.JPG",
+   "max_detection_conf": 0.999,
+   "detections": [
+    {
+     "category": "1",
+     "conf": 0.999,
+     "bbox": [
+      0.2864,
+      0.2036,
+      0.233,
+      0.717
+     ]
+    },
+    {
+     "category": "1",
+     "conf": 0.999,
+     "bbox": [
+      0.08847,
+      0.4746,
+      0.205,
+      0.2217
+     ]
+    },
+    {
+     "category": "1",
+     "conf": 0.288,
+     "bbox": [
+      0.9413,
+      0.4649,
+      0.04301,
+      0.04124
+     ]
+    },
+    {
+     "category": "1",
+     "conf": 0.215,
+     "bbox": [
+      0.2475,
+      0.5588,
+      0.05019,
+      0.1221
+     ]
+    }
+   ]
+  }
+ ],
+ "detection_categories": {
+  "1": "animal",
+  "2": "person",
+  "3": "vehicle"
+ },
+ "info": {
+  "detection_completion_time": "2020-12-10 21:34:26",
+  "format_version": "1.0"
+ }
+}
